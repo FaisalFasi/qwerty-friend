@@ -70,9 +70,9 @@ export default function Keyboard() {
               return (
                 <button
                   key={btnIndex + "key"}
-                  className={` bg-gray-400 text-white p-2 m-2 w-1/2 h-10  ${
+                  className={` bg-gray-400 text-white p-2 m-2 w-1/2 h-10 hover:bg-blue-300 ${
                     clickedBtn.includes(pressedBtn.toLowerCase())
-                      ? " bg-blue-500"
+                      ? " bg-green-500"
                       : " bg-gray-200"
                   }`}
                   onClick={() => clickHandle(pressedBtn)}
