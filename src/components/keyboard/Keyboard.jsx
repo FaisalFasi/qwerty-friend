@@ -1,89 +1,80 @@
 import { useEffect, useState } from "react";
+import keyBoardRows from "./qwertz.json";
 
 export default function Keyboard() {
-  const keys = [
-    [
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "0",
-      "=",
-      "?",
-      "`",
-      "backspace",
-    ],
-    ["tab", "Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P"],
-    ["caps ", "A", "S", "D", "F", "G", "H", "J", "K", "L", "'", "return"],
-    ["shift", "<", "Y", "X", "C", "V", "B", "N", "M", ",", ".", "-", "shift"],
-    ["ctrl", "alt", "cmd", " ", "cmd", "alt", "<", "v", "^", ">"],
-  ];
-  const [clickedBtn, setClickedBtn] = useState([]);
+  const [clickedBtns, setClickedBtn] = useState([]);
+  const [firstTimeLoading, setFirstTimeLoading] = useState(true);
 
   function clickHandle(key) {
-    const updateClickedBtn = [...clickedBtn, key.toLowerCase()];
+    const updateClickedBtn = [...clickedBtns, key.toLowerCase()];
     setClickedBtn(updateClickedBtn);
     console.log(updateClickedBtn);
   }
 
+  function updateURL() {
+    const queryParams = new URLSearchParams(window.location.search);
+    queryParams.set("command", clickedBtns.join("-"));
+
+    const newURL = `${window.location.origin}${
+      window.location.pathname
+    }?${queryParams.toString()}`;
+
+    window.history.pushState(null, "", newURL);
+  }
+
   useEffect(() => {
+    if (firstTimeLoading) {
+      const newUrl = window.location.search;
+      const pressedBtns = newUrl.split("command=")[1];
+
+      setClickedBtn(pressedBtns.split("-"));
+      console.log("queryParams" + pressedBtns);
+
+      return setFirstTimeLoading(false);
+    }
+    updateURL();
+
     document.addEventListener("keydown", keyboardBtnPress);
 
     function keyboardBtnPress(e) {
-      const updateClickedBtn = [...clickedBtn, e.key.toLowerCase()];
+      const updateClickedBtn = [...clickedBtns, e.key.toLowerCase()];
       setClickedBtn(updateClickedBtn);
-      console.log(updateClickedBtn);
     }
+
     return () => {
       document.removeEventListener("keydown", keyboardBtnPress);
     };
-  }, [clickedBtn]);
+  }, [clickedBtns]);
 
-  // function updateURL() {
-  //   const getCurrentUrl = window.location.href;
-
-  //   console.log(getCurrentUrl);
-
-  //   const newSearchParams = new URLSearchParams(window.location.search);
-  //   newSearchParams.set("command", updatedCommand.join("-"));
-  // }
-  // const [currentURL, setCurrentURL] = useState([]);
-
-  // useEffect(() => {
-  //   const searchParams = new URLSearchParams(window.location.search);
-  //   const commandParam = searchParams.get("command");
-  //   const initialState = commandParam ? commandParam.split("_") : [];
-  //   setCurrentURL(initialState);
-  // }, []);
-
+  function resetURLHandler() {
+    setClickedBtn([]);
+  }
   return (
     <div className="flex flex-col justify-center items-center bg-gray-200 p-5 ">
-      {keys.map((key, index) => {
+      {keyBoardRows.map((row, index) => {
         return (
           <div key={index + "key"} className="flex mx-10 w-full ">
-            {key.map((pressedBtn, btnIndex) => {
+            {row.map((key, btnIndex) => {
               return (
                 <button
                   key={btnIndex + "key"}
-                  className={` bg-gray-400 text-white p-2 m-2 w-1/2 h-10 hover:bg-blue-300 ${
-                    clickedBtn.includes(pressedBtn.toLowerCase())
-                      ? " bg-green-500"
+                  className={` bg-gray-400 text-white p-2 m-2 w-1/2 h-10 hover:bg-gray-700  focus:ring  focus:ring-green-500  ${
+                    clickedBtns.includes(key.toLowerCase())
+                      ? " bg-green-500 outline outline-blue-500 "
                       : " bg-gray-200"
                   }`}
-                  onClick={() => clickHandle(pressedBtn)}
+                  onClick={() => clickHandle(key)}
                 >
-                  {pressedBtn}
+                  {key}
                 </button>
               );
             })}
           </div>
         );
       })}
+      <button className="bg-blue-500 p-2 mt-5" onClick={resetURLHandler}>
+        Reset URL
+      </button>
     </div>
   );
 }
