@@ -8,7 +8,7 @@ export default function Keyboard() {
   function clickHandle(key) {
     const updateClickedBtn = [...clickedBtns, key.toLowerCase()];
     setClickedBtn(updateClickedBtn);
-    console.log(updateClickedBtn);
+    // console.log(updateClickedBtn);
   }
 
   function updateURL() {
@@ -24,13 +24,16 @@ export default function Keyboard() {
 
   useEffect(() => {
     if (firstTimeLoading) {
-      const newUrl = window.location.search;
-      const pressedBtns = newUrl.split("command=")[1];
+      try {
+        const newUrl = window.location.search;
+        const pressedBtns = newUrl.split("command=")[1];
 
-      setClickedBtn(pressedBtns.split("-"));
-      console.log("queryParams" + pressedBtns);
+        setClickedBtn(pressedBtns.split("-"));
 
-      return setFirstTimeLoading(false);
+        return setFirstTimeLoading(false);
+      } catch (e) {
+        console.log(e);
+      }
     }
     updateURL();
 
@@ -47,7 +50,7 @@ export default function Keyboard() {
   }, [clickedBtns]);
 
   function resetURLHandler() {
-    setClickedBtn([]);
+    setClickedBtn([""]);
   }
   return (
     <div className="flex flex-col justify-center items-center bg-gray-200 p-5 ">
@@ -72,7 +75,10 @@ export default function Keyboard() {
           </div>
         );
       })}
-      <button className="bg-blue-500 p-2 mt-5" onClick={resetURLHandler}>
+      <button
+        className="bg-blue-500 text-white p-3 mt-5"
+        onClick={resetURLHandler}
+      >
         Reset URL
       </button>
     </div>
